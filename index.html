@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aman Music</title>
+<style>
+  :root { --bg:#0f0f14; --card:#1a1a22; --text:#f2f2f5; --muted:#9a9aa8; --accent:#ff4d6d; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Roboto,sans-serif; padding-bottom:150px; }
+  header { position:sticky; top:0; background:var(--bg); padding:14px 16px 10px; z-index:5; padding-top:max(14px, env(safe-area-inset-top)); }
+  .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  h1 { font-size:22px; } h1 span { color:var(--accent); }
+  .icon-btn { background:none; border:none; color:var(--text); font-size:22px; padding:6px; }
+  .search { display:flex; gap:8px; }
+  .search input { flex:1; padding:12px 14px; border-radius:12px; border:none; background:var(--card); color:var(--text); font-size:16px; outline:none; }
+  .search button { padding:0 16px; border-radius:12px; border:none; background:var(--accent); color:#fff; font-size:16px; }
+  .chips { display:flex; gap:8px; overflow-x:auto; margin-top:10px; scrollbar-width:none; }
+  .chip { flex:none; padding:7px 14px; border-radius:20px; background:var(--card); color:var(--text); border:none; font-size:14px; }
+  .chip.active { background:var(--accent); }
+  #status { color:var(--muted); text-align:center; padding:30px 16px; }
+  #list { padding:0 12px; }
+  .song { display:flex; align-items:center; gap:12px; padding:8px; border-radius:12px; }
+  .song.playing { background:var(--card); }
+  .song img { width:52px; height:52px; border-radius:8px; object-fit:cover; background:#333; flex:none; }
+  .info { flex:1; min-width:0; }
+  .title { font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .artist { font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:3px; }
+  .tag { font-size:10px; background:#444; color:#ddd; padding:2px 6px; border-radius:6px; margin-left:6px; vertical-align:middle; }
+  .dur { font-size:12px; color:var(--muted); }
+  #player { position:fixed; left:0; right:0; bottom:0; background:#16161d; border-top:1px solid #262630; padding:10px 14px; padding-bottom:max(12px, env(safe-area-inset-bottom)); display:none; }
+  .prow { display:flex; align-items:center; gap:12px; }
+  #pCover { width:46px; height:46px; border-radius:8px; object-fit:cover; background:#333; }
+  .controls button { background:none; border:none; color:var(--text); font-size:26px; padding:4px 6px; }
+  #playBtn { font-size:34px; }
+  .seek { display:flex; align-items:center; gap:8px; margin-top:6px; font-size:11px; color:var(--muted); }
+  .seek input { flex:1; accent-color:var(--accent); }
+  #modal { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:10; padding:20px; }
+  .box { background:var(--card); padding:20px; border-radius:16px; width:100%; max-width:360px; }
+  .box h2 { font-size:18px; margin-bottom:6px; }
+  .box p { font-size:13px; color:var(--muted); margin-bottom:12px; }
+  .box input { width:100%; padding:12px; border-radius:10px; border:none; background:var(--bg); color:var(--text); font-size:16px; margin-bottom:12px; }
+  .box .row { display:flex; gap:8px; justify-content:flex-end; }
+  .box button { padding:10px 16px; border-radius:10px; border:none; font-size:15px; }
+  .save { background:var(--accent); color:#fff; } .cancel { background:#333; color:var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <h1>Aman <span>Music</span></h1>
+    <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙️</button>
+  </div>
+  <form class="search" id="searchForm">
+    <input id="q" type="search" placeholder="Gaana ya artist search karo..." autocomplete="off">
+    <button type="submit">🔍</button>
+  </form>
+  <div class="chips" id="chips"></div>
+</header>
+
+<div id="status">Load ho raha hai...</div>
+<div id="list"></div>
+
+<div id="player">
+  <div class="prow">
+    <img id="pCover" alt="">
+    <div class="info">
+      <div class="title" id="pTitle"></div>
+      <div class="artist" id="pArtist"></div>
+    </div>
+    <div class="controls">
+      <button id="prevBtn">⏮</button>
+      <button id="playBtn">▶️</button>
+      <button id="nextBtn">⏭</button>
+    </div>
+  </div>
+  <div class="seek">
+    <span id="cur">0:00</span>
+    <input type="range" id="seek" min="0" max="100" value="0" step="0.1">
+    <span id="tot">0:00</span>
+  </div>
+</div>
+
+<div id="modal">
+  <div class="box">
+    <h2>API Key</h2>
+    <p>Apni API key ek baar daalo. Ye sirf is phone mein save hogi.</p>
+    <input id="keyInput" type="password" placeholder="API key">
+    <div class="row">
+      <button class="cancel" id="cancelKey">Cancel</button>
+      <button class="save" id="saveKey">Save</button>
+    </div>
+  </div>
+</div>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+const API = "https://aman-music-apiyt.vercel.app";
+const CHIPS = [
+  { label: "🔥 Trending", type: "trending" },
+  { label: "Arijit Singh", q: "arijit singh" },
+  { label: "Bollywood", q: "bollywood hits" },
+  { label: "Romantic", q: "romantic hindi" },
+  { label: "Punjabi", q: "punjabi" },
+  { label: "Lofi", q: "lofi hindi" }
+];
+
+const $ = id => document.getElementById(id);
+const audio = $("audio");
+let songs = [], current = -1;
+
+// ---- Key storage ----
+function getKey() { try { return localStorage.getItem("apiKey") || ""; } catch { return ""; } }
+function setKey(k) { try { localStorage.setItem("apiKey", k); } catch {} }
+
+function openSettings() { $("keyInput").value = getKey(); $("modal").style.display = "flex"; }
+function closeSettings() { $("modal").style.display = "none"; }
+$("settingsBtn").onclick = openSettings;
+$("cancelKey").onclick = closeSettings;
+$("saveKey").onclick = () => { setKey($("keyInput").value.trim()); closeSettings(); loadTrending(); };
+
+// ---- API ----
+async function api(path, params = {}) {
+  const key = getKey();
+  if (!key) { openSettings(); throw new Error("Pehle ⚙️ mein API key daalo."); }
+  const url = new URL(API + path);
+  Object.entries({ ...params, key }).forEach(([k, v]) => v !== undefined && url.searchParams.set(k, v));
+  const res = await fetch(url, { headers: { "X-API-Key": key } });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.success === false) {
+    throw new Error(json.message || json.error || ("Error " + res.status));
+  }
+  const d = json.data || json;
+  return d.results || d.tracks || d.songs || (Array.isArray(d) ? d : []);
+}
+
+function setStatus(msg) { $("status").textContent = msg; $("status").style.display = msg ? "block" : "none"; }
+
+async function load(fn, loadingMsg) {
+  setStatus(loadingMsg); $("list").innerHTML = "";
+  try {
+    const list = (await fn()).filter(s => s && s.play_url);
+    songs = list; current = -1;
+    if (!list.length) return setStatus("Kuch nahi mila. Kuch aur search karo.");
+    setStatus(""); render();
+  } catch (e) { setStatus("⚠️ " + e.message); }
+}
+
+function search(q) { if (q) load(() => api("/search", { q, limit: 30 }), `"${q}" dhundh raha hoon...`); }
+function loadTrending() {
+  load(async () => {
+    try { const r = await api("/trending"); if (r.length) return r; } catch (e) { if (!getKey()) throw e; }
+    return api("/search", { q: "arijit singh", limit: 30 });
+  }, "Trending gaane la raha hoon...");
+}
+
+// ---- UI ----
+function fmt(s) { s = Math.floor(s || 0); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+function esc(t) { return String(t ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+function render() {
+  $("list").innerHTML = songs.map((s, i) => `
+    <div class="song ${i === current ? "playing" : ""}" data-i="${i}">
+      <img src="${esc(s.cover)}" loading="lazy" alt="" onerror="this.style.visibility='hidden'">
+      <div class="info">
+        <div class="title">${esc(s.title)}${s.type === "preview_30s" ? '<span class="tag">30s</span>' : ""}</div>
+        <div class="artist">${esc(s.artist)}</div>
+      </div>
+      <div class="dur">${s.type === "preview_30s" ? "0:30" : fmt(s.duration)}</div>
+    </div>`).join("");
+}
+$("list").onclick = e => { const el = e.target.closest(".song"); if (el) play(+el.dataset.i); };
+
+$("chips").innerHTML = CHIPS.map((c, i) => `<button class="chip ${i === 0 ? "active" : ""}" data-i="${i}">${c.label}</button>`).join("");
+$("chips").onclick = e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  document.querySelectorAll(".chip").forEach(x => x.classList.remove("active")); b.classList.add("active");
+  const c = CHIPS[+b.dataset.i]; c.type === "trending" ? loadTrending() : search(c.q);
+};
+$("searchForm").onsubmit = e => { e.preventDefault(); $("q").blur(); search($("q").value.trim()); };
+
+// ---- Player ----
+function play(i) {
+  if (i < 0 || i >= songs.length) return;
+  current = i; const s = songs[i];
+  audio.src = s.play_url; audio.play().catch(() => {});
+  $("player").style.display = "block";
+  $("pCover").src = s.cover || ""; $("pTitle").textContent = s.title || ""; $("pArtist").textContent = s.artist || "";
+  render();
+  if ("mediaSession" in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: s.title, artist: s.artist, artwork: s.cover ? [{ src: s.cover, sizes: "512x512" }] : [] });
+    navigator.mediaSession.setActionHandler("previoustrack", () => play(current - 1));
+    navigator.mediaSession.setActionHandler("nexttrack", () => play(current + 1));
+  }
+}
+$("playBtn").onclick = () => audio.paused ? audio.play() : audio.pause();
+$("prevBtn").onclick = () => audio.currentTime > 3 ? (audio.currentTime = 0) : play(current - 1);
+$("nextBtn").onclick = () => play(current + 1);
+audio.onplay = () => $("playBtn").textContent = "⏸";
+audio.onpause = () => $("playBtn").textContent = "▶️";
+audio.onended = () => play(current + 1);
+audio.onerror = () => { if (current >= 0) { setStatus("⚠️ Ye gaana nahi chala, agla chala raha hoon."); setTimeout(() => setStatus(""), 2500); play(current + 1); } };
+audio.ontimeupdate = () => {
+  if (!audio.duration) return;
+  $("seek").value = audio.currentTime / audio.duration * 100;
+  $("cur").textContent = fmt(audio.currentTime); $("tot").textContent = fmt(audio.duration);
+};
+$("seek").oninput = e => { if (audio.duration) audio.currentTime = e.target.value / 100 * audio.duration; };
+
+// ---- Start ----
+if (getKey()) loadTrending(); else { setStatus("⚙️ par tap karke API key daalo."); openSettings(); }
+</script>
+</body>
+</html>

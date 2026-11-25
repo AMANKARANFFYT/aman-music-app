@@ -1,0 +1,10 @@
+{
+  "appId": "com.aman.music",
+  "appName": "Aman Music",
+  "webDir": "www",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
