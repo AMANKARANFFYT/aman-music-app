@@ -2,215 +2,622 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07070c">
 <title>Aman Music</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#0f0f14; --card:#1a1a22; --text:#f2f2f5; --muted:#9a9aa8; --accent:#ff4d6d; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Roboto,sans-serif; padding-bottom:150px; }
-  header { position:sticky; top:0; background:var(--bg); padding:14px 16px 10px; z-index:5; padding-top:max(14px, env(safe-area-inset-top)); }
-  .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-  h1 { font-size:22px; } h1 span { color:var(--accent); }
-  .icon-btn { background:none; border:none; color:var(--text); font-size:22px; padding:6px; }
-  .search { display:flex; gap:8px; }
-  .search input { flex:1; padding:12px 14px; border-radius:12px; border:none; background:var(--card); color:var(--text); font-size:16px; outline:none; }
-  .search button { padding:0 16px; border-radius:12px; border:none; background:var(--accent); color:#fff; font-size:16px; }
-  .chips { display:flex; gap:8px; overflow-x:auto; margin-top:10px; scrollbar-width:none; }
-  .chip { flex:none; padding:7px 14px; border-radius:20px; background:var(--card); color:var(--text); border:none; font-size:14px; }
-  .chip.active { background:var(--accent); }
-  #status { color:var(--muted); text-align:center; padding:30px 16px; }
-  #list { padding:0 12px; }
-  .song { display:flex; align-items:center; gap:12px; padding:8px; border-radius:12px; }
-  .song.playing { background:var(--card); }
-  .song img { width:52px; height:52px; border-radius:8px; object-fit:cover; background:#333; flex:none; }
-  .info { flex:1; min-width:0; }
-  .title { font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .artist { font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:3px; }
-  .tag { font-size:10px; background:#444; color:#ddd; padding:2px 6px; border-radius:6px; margin-left:6px; vertical-align:middle; }
-  .dur { font-size:12px; color:var(--muted); }
-  #player { position:fixed; left:0; right:0; bottom:0; background:#16161d; border-top:1px solid #262630; padding:10px 14px; padding-bottom:max(12px, env(safe-area-inset-bottom)); display:none; }
-  .prow { display:flex; align-items:center; gap:12px; }
-  #pCover { width:46px; height:46px; border-radius:8px; object-fit:cover; background:#333; }
-  .controls button { background:none; border:none; color:var(--text); font-size:26px; padding:4px 6px; }
-  #playBtn { font-size:34px; }
-  .seek { display:flex; align-items:center; gap:8px; margin-top:6px; font-size:11px; color:var(--muted); }
-  .seek input { flex:1; accent-color:var(--accent); }
-  #modal { position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:10; padding:20px; }
-  .box { background:var(--card); padding:20px; border-radius:16px; width:100%; max-width:360px; }
-  .box h2 { font-size:18px; margin-bottom:6px; }
-  .box p { font-size:13px; color:var(--muted); margin-bottom:12px; }
-  .box input { width:100%; padding:12px; border-radius:10px; border:none; background:var(--bg); color:var(--text); font-size:16px; margin-bottom:12px; }
-  .box .row { display:flex; gap:8px; justify-content:flex-end; }
-  .box button { padding:10px 16px; border-radius:10px; border:none; font-size:15px; }
-  .save { background:var(--accent); color:#fff; } .cancel { background:#333; color:var(--text); }
+:root{
+  --bg:#07070c; --glass:rgba(255,255,255,.06); --glass2:rgba(255,255,255,.1); --line:rgba(255,255,255,.09);
+  --text:#fff; --muted:rgba(255,255,255,.55);
+  --pink:#ff2d75; --violet:#8b5cf6; --cyan:#22d3ee;
+  --grad:linear-gradient(135deg,var(--pink),var(--violet) 55%,var(--cyan));
+  --top:max(env(safe-area-inset-top),30px); --bot:env(safe-area-inset-bottom);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:Poppins,system-ui,sans-serif;overflow-x:hidden}
+body{min-height:100vh;padding-bottom:calc(170px + var(--bot))}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+svg{width:22px;height:22px;fill:currentColor;display:block}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hide{display:none!important}
+
+/* ---------- Aurora background ---------- */
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.aurora span{position:absolute;width:70vw;height:70vw;border-radius:50%;filter:blur(80px);opacity:.35;animation:float 18s ease-in-out infinite}
+.aurora span:nth-child(1){background:var(--violet);top:-20vw;left:-20vw}
+.aurora span:nth-child(2){background:var(--pink);top:30vh;right:-30vw;animation-delay:-6s}
+.aurora span:nth-child(3){background:var(--cyan);bottom:-25vw;left:10vw;opacity:.2;animation-delay:-12s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(8vw,6vh) scale(1.1)}66%{transform:translate(-6vw,-4vh) scale(.95)}}
+
+/* ---------- Header ---------- */
+.page{display:none;animation:fade .35s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+header{padding:calc(var(--top) + 8px) 20px 6px;display:flex;justify-content:space-between;align-items:center}
+.hello{font-size:13px;color:var(--muted);font-weight:500}
+.brand{font-size:28px;font-weight:800;letter-spacing:-.5px;line-height:1.15}
+.round{width:44px;height:44px;border-radius:50%;background:var(--glass);border:1px solid var(--line);display:grid;place-items:center;backdrop-filter:blur(12px)}
+.page-title{font-size:26px;font-weight:800;padding:calc(var(--top) + 8px) 20px 14px}
+.by{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--muted);margin-top:3px}
+.by b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+.verified{width:14px;height:14px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:9px;color:#fff;font-weight:800}
+.footer{text-align:center;padding:40px 20px 10px;color:var(--muted);font-size:12px;line-height:1.8}
+.footer .logo{font-size:20px;font-weight:800;color:var(--text)}
+.footer b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;letter-spacing:.5px}
+.credit{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--muted)}
+.credit b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+
+/* ---------- Splash ---------- */
+.splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
+.splash.gone{opacity:0;visibility:hidden}
+.splash .orb{width:110px;height:110px;border-radius:32px;background:var(--grad);display:grid;place-items:center;box-shadow:0 0 70px rgba(255,45,117,.55),0 0 140px rgba(139,92,246,.4);animation:pulse 1.6s ease-in-out infinite}
+.splash .orb svg{width:54px;height:54px}
+.splash h1{font-size:32px;font-weight:800;margin-top:26px;letter-spacing:-.5px;animation:fade .7s .2s both}
+.splash p{font-size:12px;letter-spacing:3px;color:var(--muted);margin-top:6px;animation:fade .7s .45s both}
+.splash p b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes pulse{50%{transform:scale(1.07)}}
+
+/* ---------- Search ---------- */
+.searchbar{margin:14px 20px 4px;display:flex;align-items:center;gap:10px;padding:0 16px;height:52px;border-radius:16px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);color:var(--muted)}
+.searchbar input{flex:1;background:none;border:none;outline:none;color:var(--text);font:inherit;font-size:15px}
+.searchbar input::placeholder{color:var(--muted)}
+.chips{display:flex;gap:10px;overflow-x:auto;padding:14px 20px 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar,.row-scroll::-webkit-scrollbar,.hero::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:9px 18px;border-radius:30px;background:var(--glass);border:1px solid var(--line);font-size:13px;font-weight:500;transition:.25s}
+.chip.active{background:var(--grad);border-color:transparent;box-shadow:0 6px 24px rgba(255,45,117,.35)}
+
+/* ---------- Sections ---------- */
+.sec-head{display:flex;justify-content:space-between;align-items:end;padding:22px 20px 12px}
+.sec-head h2{font-size:19px;font-weight:700}
+.sec-head small{font-size:12px;color:var(--muted)}
+.hero,.row-scroll{display:flex;gap:14px;overflow-x:auto;padding:0 20px;scroll-padding:0 20px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.hero-card{flex:none;width:82vw;max-width:420px;height:210px;border-radius:26px;position:relative;overflow:hidden;scroll-snap-align:center;box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.hero-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.05)}
+.hero-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(7,7,12,.95)),linear-gradient(90deg,rgba(139,92,246,.35),transparent)}
+.hero-info{position:absolute;left:18px;right:80px;bottom:18px;z-index:2}
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:20px;background:var(--grad);margin-bottom:8px}
+.hero-info h3{font-size:19px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hero-info p{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-play{position:absolute;right:18px;bottom:18px;z-index:2;width:54px;height:54px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 8px 26px rgba(255,45,117,.55)}
+.card{flex:none;width:142px;scroll-snap-align:start}
+.card .art{width:142px;height:142px;border-radius:20px;overflow:hidden;position:relative;background:var(--glass2);box-shadow:0 10px 26px rgba(0,0,0,.45)}
+.card img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.card:active img{transform:scale(1.08)}
+.card .mini-play{position:absolute;right:8px;bottom:8px;width:36px;height:36px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.card .mini-play svg{width:16px;height:16px}
+.card h4{font-size:13px;font-weight:600;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card p{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.15);margin-left:6px;vertical-align:middle;letter-spacing:.5px}
+
+/* ---------- List ---------- */
+.list{padding:6px 14px}
+.item{display:flex;align-items:center;gap:13px;padding:9px 8px;border-radius:16px;transition:background .2s}
+.item:active{background:var(--glass)}
+.item.playing{background:linear-gradient(90deg,rgba(255,45,117,.16),rgba(139,92,246,.08));border:1px solid rgba(255,45,117,.25)}
+.item img{width:56px;height:56px;border-radius:14px;object-fit:cover;background:var(--glass2);flex:none}
+.item .meta{flex:1;min-width:0}
+.item h4{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item p{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.item .side{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.eq{display:flex;gap:2px;align-items:end;height:16px}
+.eq i{width:3px;background:var(--pink);border-radius:2px;animation:eq .9s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:-.3s;background:var(--violet)}.eq i:nth-child(3){animation-delay:-.6s;background:var(--cyan)}
+@keyframes eq{0%,100%{height:4px}50%{height:16px}}
+.paused .eq i{animation-play-state:paused}
+.empty{text-align:center;color:var(--muted);padding:50px 30px;font-size:14px;line-height:1.6}
+.empty .big{font-size:46px;margin-bottom:10px}
+
+/* ---------- Skeleton ---------- */
+.sk{background:linear-gradient(90deg,var(--glass) 25%,var(--glass2) 50%,var(--glass) 75%);background-size:200% 100%;animation:sh 1.3s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* ---------- Mini player ---------- */
+.mini{position:fixed;left:12px;right:12px;bottom:calc(78px + var(--bot));z-index:20;border-radius:20px;padding:9px 10px 9px 9px;display:flex;align-items:center;gap:12px;background:rgba(22,18,34,.75);border:1px solid var(--line);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 14px 40px rgba(0,0,0,.6);overflow:hidden;transform:translateY(150%);transition:transform .45s cubic-bezier(.2,.9,.3,1.2)}
+.mini:not(.show){pointer-events:none;visibility:hidden}
+.mini.show{transform:none}
+.mini img{width:46px;height:46px;border-radius:12px;object-fit:cover;background:var(--glass2)}
+.mini .meta{flex:1;min-width:0}
+.mini h4{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini p{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .pp{width:42px;height:42px;border-radius:50%;background:var(--grad);display:grid;place-items:center}
+.mini .bar{position:absolute;left:0;bottom:0;height:2.5px;background:var(--grad);width:0}
+
+/* ---------- Bottom nav ---------- */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:19;display:flex;justify-content:space-around;padding:10px 0 calc(10px + var(--bot));background:linear-gradient(180deg,rgba(7,7,12,.4),rgba(7,7,12,.97) 40%);backdrop-filter:blur(14px)}
+nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--muted);padding:4px 18px;transition:.25s}
+nav button.active{color:var(--text)}
+nav button.active svg{fill:url(#g)}
+nav button.active span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700}
+
+/* ---------- Full player ---------- */
+.full{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.9,.25,1);overflow:hidden}
+.full.open{transform:none}
+.full .bgimg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(50px) saturate(1.6) brightness(.45);transform:scale(1.2);z-index:-1;transition:background-image .6s}
+.full::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,12,.2),rgba(7,7,12,.85) 75%);z-index:-1}
+.f-top{display:flex;justify-content:space-between;align-items:center;padding:calc(var(--top) + 6px) 20px 0}
+.f-top .lbl{text-align:center;font-size:11px;letter-spacing:2px;color:var(--muted);font-weight:600}
+.f-top .lbl b{display:block;color:var(--text);font-size:13px;letter-spacing:0;margin-top:2px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.disc-wrap{flex:1;display:grid;place-items:center;min-height:0;padding:20px}
+.disc{width:min(74vw,330px);aspect-ratio:1;border-radius:50%;position:relative;padding:7px;background:var(--grad);box-shadow:0 0 60px rgba(255,45,117,.45),0 0 120px rgba(139,92,246,.35);animation:spin 18s linear infinite;animation-play-state:paused}
+.playing-now .disc{animation-play-state:running}
+.disc img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:6px solid #0b0b12;background:#111}
+.disc::after{content:"";position:absolute;width:18%;height:18%;border-radius:50%;background:#0b0b12;border:3px solid rgba(255,255,255,.15);top:41%;left:41%}
+@keyframes spin{to{transform:rotate(360deg)}}
+.viz{display:flex;justify-content:center;gap:4px;height:26px;align-items:end;margin-bottom:14px}
+.viz i{width:4px;border-radius:3px;background:var(--grad);height:4px}
+.playing-now .viz i{animation:eq 1s ease-in-out infinite}
+.f-info{padding:0 26px;display:flex;align-items:center;gap:14px}
+.f-info .meta{flex:1;min-width:0}
+.f-info h2{font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-info p{font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.like svg{width:28px;height:28px}
+.like.on{color:var(--pink);animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.35)}}
+.seek{padding:20px 26px 0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;outline:none;background:linear-gradient(90deg,var(--pink),var(--violet) var(--p,0%),rgba(255,255,255,.15) var(--p,0%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 0 14px var(--pink)}
+.times{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:8px}
+.ctrls{display:flex;justify-content:space-between;align-items:center;padding:16px 26px calc(34px + var(--bot))}
+.ctrls .s svg{width:22px;height:22px}
+.ctrls .s{color:var(--muted);position:relative}
+.ctrls .s.on{color:var(--pink)}
+.ctrls .s.on::after{content:"";position:absolute;bottom:-8px;left:50%;width:4px;height:4px;border-radius:50%;background:var(--pink);transform:translateX(-50%)}
+.ctrls .one::before{content:"1";position:absolute;top:-6px;right:-8px;font-size:9px;font-weight:800;color:var(--pink)}
+.ctrls .n svg{width:34px;height:34px}
+.big-play{width:76px;height:76px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 12px 40px rgba(255,45,117,.55);transition:transform .15s}
+.big-play:active{transform:scale(.92)}
+.big-play svg{width:34px;height:34px}
+
+/* ---------- Modal + toast ---------- */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px}
+.modal.show{display:flex}
+.box{width:100%;max-width:370px;border-radius:26px;padding:26px 22px;background:rgba(24,20,38,.92);border:1px solid var(--line);box-shadow:0 30px 60px rgba(0,0,0,.6);animation:fade .3s}
+.box .ico{width:58px;height:58px;border-radius:18px;background:var(--grad);display:grid;place-items:center;margin-bottom:14px}
+.box .ico svg{width:28px;height:28px}
+.box h3{font-size:20px;font-weight:700}
+.box p{font-size:13px;color:var(--muted);margin:6px 0 16px;line-height:1.55}
+.box input{width:100%;height:50px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--text);padding:0 16px;font:inherit;font-size:15px;outline:none;margin-bottom:16px}
+.box input:focus{border-color:var(--pink)}
+.box .row{display:flex;gap:10px}
+.box .row button{flex:1;height:48px;border-radius:14px;font-weight:600}
+.btn-g{background:var(--grad);box-shadow:0 8px 24px rgba(255,45,117,.35)}
+.btn-d{background:var(--glass2)}
+.toast{position:fixed;left:50%;top:calc(var(--top) + 10px);z-index:60;transform:translate(-50%,-150%);padding:11px 18px;border-radius:14px;background:rgba(24,20,38,.95);border:1px solid var(--line);font-size:13px;transition:transform .4s,opacity .4s;max-width:88vw;text-align:center;opacity:0;pointer-events:none}
+.toast.show{transform:translate(-50%,0);opacity:1}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="top">
-    <h1>Aman <span>Music</span></h1>
-    <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙️</button>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff2d75"/><stop offset=".55" stop-color="#8b5cf6"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs></svg>
+<div class="aurora"><span></span><span></span><span></span></div>
+<div class="splash" id="splash">
+  <div class="orb"><svg viewBox="0 0 24 24"><path d="M9 18.5a3 3 0 1 1-2-2.83V6.2a1 1 0 0 1 .76-.97l10-2.5A1 1 0 0 1 19 3.7v11.8a3 3 0 1 1-2-2.83V7.28l-8 2v9.22z"/></svg></div>
+  <h1>Aman <span class="grad-text">Music</span></h1>
+  <p>BY <b>AMANKARANYTFF</b></p>
+</div>
+
+<!-- HOME -->
+<section class="page active" id="pg-home">
+  <header>
+    <div>
+      <div class="hello" id="hello">Hello</div>
+      <div class="brand">Aman <span class="grad-text">Music</span></div>
+      <div class="by">by <b>AMANKARANYTFF</b><span class="verified">✓</span></div>
+    </div>
+    <button class="round" id="btnSettings" aria-label="Settings"></button>
+  </header>
+  <div class="searchbar" id="fakeSearch"><span data-i="search"></span><span>Gaane, artist, mood dhundho...</span></div>
+  <div id="homeRows"></div>
+  <div class="footer">
+    <div class="logo">Aman <span class="grad-text">Music</span></div>
+    Made with 💜 by <b>AMANKARANYTFF</b><br>v2.0 • Premium Edition
   </div>
-  <form class="search" id="searchForm">
-    <input id="q" type="search" placeholder="Gaana ya artist search karo..." autocomplete="off">
-    <button type="submit">🔍</button>
+</section>
+
+<!-- SEARCH -->
+<section class="page" id="pg-search">
+  <div class="page-title">Search</div>
+  <form class="searchbar" id="searchForm" style="margin-top:0">
+    <span data-i="search"></span>
+    <input id="q" type="search" placeholder="Kya sunna hai aaj?" autocomplete="off" enterkeyhint="search">
   </form>
-  <div class="chips" id="chips"></div>
-</header>
+  <div class="chips" id="moods"></div>
+  <div class="list" id="results"></div>
+</section>
 
-<div id="status">Load ho raha hai...</div>
-<div id="list"></div>
+<!-- LIKED -->
+<section class="page" id="pg-liked">
+  <div class="page-title">Liked <span class="grad-text">Songs</span> 💜</div>
+  <div class="list" id="likedList"></div>
+</section>
 
-<div id="player">
-  <div class="prow">
-    <img id="pCover" alt="">
-    <div class="info">
-      <div class="title" id="pTitle"></div>
-      <div class="artist" id="pArtist"></div>
-    </div>
-    <div class="controls">
-      <button id="prevBtn">⏮</button>
-      <button id="playBtn">▶️</button>
-      <button id="nextBtn">⏭</button>
-    </div>
+<!-- MINI PLAYER -->
+<div class="mini" id="mini">
+  <img id="mCover" alt="">
+  <div class="meta"><h4 id="mTitle"></h4><p id="mArtist"></p></div>
+  <button class="pp" id="mPlay"></button>
+  <button id="mNext" style="padding:0 4px"></button>
+  <div class="bar" id="mBar"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <button class="active" data-pg="home"><span data-i="home"></span><span>Home</span></button>
+  <button data-pg="search"><span data-i="search"></span><span>Search</span></button>
+  <button data-pg="liked"><span data-i="heart"></span><span>Liked</span></button>
+</nav>
+
+<!-- FULL PLAYER -->
+<div class="full" id="full">
+  <div class="bgimg" id="fBg"></div>
+  <div class="f-top">
+    <button class="round" id="fClose"></button>
+    <div class="lbl">NOW PLAYING<b id="fFrom">Aman Music</b></div>
+    <button class="round" id="fSettings2" style="visibility:hidden"></button>
+  </div>
+  <div class="disc-wrap"><div class="disc"><img id="fCover" alt=""></div></div>
+  <div class="viz" id="viz"></div>
+  <div class="f-info">
+    <div class="meta"><h2 id="fTitle"></h2><p id="fArtist"></p></div>
+    <button class="like" id="fLike"></button>
   </div>
   <div class="seek">
-    <span id="cur">0:00</span>
-    <input type="range" id="seek" min="0" max="100" value="0" step="0.1">
-    <span id="tot">0:00</span>
+    <input type="range" id="seek" min="0" max="1000" value="0">
+    <div class="times"><span id="cur">0:00</span><span id="tot">0:00</span></div>
+  </div>
+  <div class="ctrls">
+    <button class="s" id="shuf"></button>
+    <button class="n" id="prev"></button>
+    <button class="big-play" id="play"></button>
+    <button class="n" id="next"></button>
+    <button class="s" id="rep"></button>
   </div>
 </div>
 
-<div id="modal">
+<!-- SETTINGS -->
+<div class="modal" id="modal">
   <div class="box">
-    <h2>API Key</h2>
-    <p>Apni API key ek baar daalo. Ye sirf is phone mein save hogi.</p>
-    <input id="keyInput" type="password" placeholder="API key">
-    <div class="row">
-      <button class="cancel" id="cancelKey">Cancel</button>
-      <button class="save" id="saveKey">Save</button>
+    <div class="ico" data-i="key"></div>
+    <div id="keyArea">
+      <h3>API Key</h3>
+      <p>Apni AMAN MUSIC API key ek baar daalo. Ye sirf is phone mein safe rahegi.</p>
+      <input id="keyInput" type="password" placeholder="Yahan key daalo">
+      <div class="row"><button class="btn-d" id="kCancel">Cancel</button><button class="btn-g" id="kSave">Save</button></div>
     </div>
+    <div id="aboutArea" class="hide">
+      <h3>Aman Music</h3>
+      <p>Premium music app. Search karo, suno, like karo. Koi login nahi, koi ads nahi. 🎧</p>
+      <div class="row"><button class="btn-g" id="aClose">OK</button></div>
+    </div>
+    <div class="credit">Developed by <b>AMANKARANYTFF</b> • Aman Music v2.0</div>
   </div>
 </div>
-
+<div class="toast" id="toast"></div>
 <audio id="audio" preload="none"></audio>
 
 <script>
 const API = "https://aman-music-apiyt.vercel.app";
-const CHIPS = [
-  { label: "🔥 Trending", type: "trending" },
-  { label: "Arijit Singh", q: "arijit singh" },
-  { label: "Bollywood", q: "bollywood hits" },
-  { label: "Romantic", q: "romantic hindi" },
-  { label: "Punjabi", q: "punjabi" },
-  { label: "Lofi", q: "lofi hindi" }
+// APK build ke waqt GitHub Secret (API_KEY) se ye apne aap bhar jata hai.
+const BUILT_IN_KEY = "__AMAN_API_KEY__";
+const HAS_BUILT_IN = !BUILT_IN_KEY.startsWith("__");
+const ROWS = [
+  { title: "🔥 Trending Now", trending: true, hero: true },
+  { title: "Arijit Special", q: "arijit singh" },
+  { title: "Bollywood Hits", q: "bollywood hits" },
+  { title: "Punjabi Vibes", q: "punjabi hits" },
+  { title: "Romantic Mood", q: "romantic hindi" },
+  { title: "Lofi Chill", q: "lofi hindi" }
 ];
+const MOODS = ["Arijit Singh","Bollywood","Romantic","Sad","Party","Punjabi","Lofi","Workout","90s Hits","Devotional"];
+
+const I = {
+  play:'<svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24"><rect x="6" y="4.5" width="4.2" height="15" rx="1.4"/><rect x="13.8" y="4.5" width="4.2" height="15" rx="1.4"/></svg>',
+  next:'<svg viewBox="0 0 24 24"><path d="M5 6.2v11.6a1 1 0 0 0 1.55.83L15 12.83a1 1 0 0 0 0-1.66L6.55 5.37A1 1 0 0 0 5 6.2z"/><rect x="16.5" y="5" width="2.6" height="14" rx="1.2"/></svg>',
+  prev:'<svg viewBox="0 0 24 24"><path d="M19 6.2v11.6a1 1 0 0 1-1.55.83L9 12.83a1 1 0 0 1 0-1.66l8.45-5.8A1 1 0 0 1 19 6.2z"/><rect x="4.9" y="5" width="2.6" height="14" rx="1.2"/></svg>',
+  shuffle:'<svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4V8h-2.2c-1 0-1.9.5-2.5 1.3L7.6 16A4.9 4.9 0 0 1 3.6 18H2v-2h1.6c1 0 1.9-.5 2.5-1.3L10.8 8a4.9 4.9 0 0 1 4-2H17V3zm0 10l4 4-4 4v-3h-2.2a4.9 4.9 0 0 1-4-2l-.6-.9 1.2-1.7 1 1.4c.6.8 1.5 1.2 2.4 1.2H17v-3zM2 6h1.6c1.6 0 3 .7 4 2l.6.9L7 10.6l-1-1.4C5.5 8.5 4.6 8 3.6 8H2V6z"/></svg>',
+  repeat:'<svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4V6H7a3 3 0 0 0-3 3v2H2V9a5 5 0 0 1 5-5h10V1zM7 23l-4-4 4-4v3h10a3 3 0 0 0 3-3v-2h2v2a5 5 0 0 1-5 5H7v3z"/></svg>',
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2 0 3.5 1 4.3 2.4h2c.8-1.4 2.3-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  heartF:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2 0 3.5 1 4.3 2.4h2c.8-1.4 2.3-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>',
+  search:'<svg viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 0 1 5.96 12.05l4.25 4.24-1.42 1.42-4.24-4.25A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>',
+  home:'<svg viewBox="0 0 24 24"><path d="M12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1v-9.5L12 3z"/></svg>',
+  gear:'<svg viewBox="0 0 24 24"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.6 7.6 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.6 7.6 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.2 1.6 2 3.5 2.5-1c.5.4 1.1.7 1.7 1L11 21h4l.4-2.9c.6-.3 1.2-.6 1.7-1l2.5 1 2-3.5L19.4 13zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>',
+  down:'<svg viewBox="0 0 24 24"><path d="M5.3 8.3a1 1 0 0 1 1.4 0L12 13.6l5.3-5.3a1 1 0 1 1 1.4 1.4l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.4z"/></svg>',
+  music:'<svg viewBox="0 0 24 24"><path d="M9 18.5a3 3 0 1 1-2-2.83V6.2a1 1 0 0 1 .76-.97l10-2.5A1 1 0 0 1 19 3.7v11.8a3 3 0 1 1-2-2.83V7.28l-8 2v9.22z"/></svg>',
+  key:'<svg viewBox="0 0 24 24"><path d="M14 2a8 8 0 0 1 0 16 8 8 0 0 1-3.2-.7L9 19.1V21H7v2H3v-4l7.7-7.7A8 8 0 0 1 14 2zm2.5 4a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>'
+};
 
 const $ = id => document.getElementById(id);
 const audio = $("audio");
-let songs = [], current = -1;
+document.querySelectorAll("[data-i]").forEach(el => el.innerHTML = I[el.dataset.i]);
+$("btnSettings").innerHTML = I.gear; $("fClose").innerHTML = I.down;
+$("mPlay").innerHTML = I.play; $("mNext").innerHTML = I.next;
+$("play").innerHTML = I.play; $("prev").innerHTML = I.prev; $("next").innerHTML = I.next;
+$("shuf").innerHTML = I.shuffle; $("rep").innerHTML = I.repeat; $("fLike").innerHTML = I.heart;
+$("viz").innerHTML = Array.from({length:24}, (_, i) => `<i style="animation-delay:${-(i*137%1000)/1000}s"></i>`).join("");
 
-// ---- Key storage ----
-function getKey() { try { return localStorage.getItem("apiKey") || ""; } catch { return ""; } }
-function setKey(k) { try { localStorage.setItem("apiKey", k); } catch {} }
+/* ---------- Storage ---------- */
+const store = {
+  get(k, d) {
+    let v; try { v = localStorage.getItem(k); } catch { return d; }
+    if (v === null) return d;
+    try { return JSON.parse(v); } catch { return v; } // purane version ki key (plain text) bhi chalegi
+  },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const getKey = () => (HAS_BUILT_IN ? BUILT_IN_KEY : String(store.get("apiKey", "") || ""));
 
-function openSettings() { $("keyInput").value = getKey(); $("modal").style.display = "flex"; }
-function closeSettings() { $("modal").style.display = "none"; }
-$("settingsBtn").onclick = openSettings;
-$("cancelKey").onclick = closeSettings;
-$("saveKey").onclick = () => { setKey($("keyInput").value.trim()); closeSettings(); loadTrending(); };
+/* ---------- Helpers ---------- */
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = s => { s = Math.floor(s || 0); return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+const isPrev = s => s.type === "preview_30s";
+const tag = s => isPrev(s) ? '<span class="tag">30s</span>' : "";
+let toastT;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600); }
 
-// ---- API ----
+(function greet() {
+  const h = new Date().getHours();
+  $("hello").textContent = h < 5 ? "Late night vibes 🌙" : h < 12 ? "Good Morning ☀️" : h < 17 ? "Good Afternoon 🌤️" : h < 21 ? "Good Evening 🌆" : "Late night vibes 🌙";
+})();
+
+/* ---------- API ---------- */
 async function api(path, params = {}) {
   const key = getKey();
-  if (!key) { openSettings(); throw new Error("Pehle ⚙️ mein API key daalo."); }
+  if (!key) { openSettings(); throw new Error("Pehle API key daalo"); }
   const url = new URL(API + path);
-  Object.entries({ ...params, key }).forEach(([k, v]) => v !== undefined && url.searchParams.set(k, v));
+  Object.entries({ ...params, key }).forEach(([k, v]) => v != null && url.searchParams.set(k, v));
   const res = await fetch(url, { headers: { "X-API-Key": key } });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok || json.success === false) {
-    throw new Error(json.message || json.error || ("Error " + res.status));
-  }
+  if (!res.ok || json.success === false) throw new Error(json.message || json.error || ("Error " + res.status));
   const d = json.data || json;
-  return d.results || d.tracks || d.songs || (Array.isArray(d) ? d : []);
+  const arr = d.results || d.tracks || d.songs || (Array.isArray(d) ? d : []);
+  return arr.filter(s => s && s.play_url);
+}
+const search = (q, limit = 25) => api("/search", { q, limit });
+async function trending() {
+  try { const r = await api("/trending"); if (r.length) return r; } catch (e) { if (!getKey()) throw e; }
+  return search("trending hindi songs", 15);
 }
 
-function setStatus(msg) { $("status").textContent = msg; $("status").style.display = msg ? "block" : "none"; }
-
-async function load(fn, loadingMsg) {
-  setStatus(loadingMsg); $("list").innerHTML = "";
-  try {
-    const list = (await fn()).filter(s => s && s.play_url);
-    songs = list; current = -1;
-    if (!list.length) return setStatus("Kuch nahi mila. Kuch aur search karo.");
-    setStatus(""); render();
-  } catch (e) { setStatus("⚠️ " + e.message); }
+/* ---------- Home ---------- */
+const lists = {}; // id -> songs
+function skeletonRow(hero) {
+  return hero
+    ? `<div class="hero">${'<div class="hero-card sk"></div>'.repeat(2)}</div>`
+    : `<div class="row-scroll">${'<div class="card"><div class="art sk"></div><h4 class="sk" style="height:12px;border-radius:6px;width:80%"></h4></div>'.repeat(4)}</div>`;
 }
-
-function search(q) { if (q) load(() => api("/search", { q, limit: 30 }), `"${q}" dhundh raha hoon...`); }
-function loadTrending() {
-  load(async () => {
-    try { const r = await api("/trending"); if (r.length) return r; } catch (e) { if (!getKey()) throw e; }
-    return api("/search", { q: "arijit singh", limit: 30 });
-  }, "Trending gaane la raha hoon...");
+function heroCard(s, id, i) {
+  return `<div class="hero-card" data-l="${id}" data-i="${i}">
+    <img src="${esc(s.cover)}" alt="" loading="lazy" onerror="this.remove()">
+    <div class="hero-info"><span class="badge">#${i+1} TRENDING</span><h3>${esc(s.title)}</h3><p>${esc(s.artist)}</p></div>
+    <div class="hero-play">${I.play}</div></div>`;
 }
+function card(s, id, i) {
+  return `<div class="card" data-l="${id}" data-i="${i}">
+    <div class="art"><img src="${esc(s.cover)}" alt="" loading="lazy" onerror="this.style.opacity=0"><div class="mini-play">${I.play}</div></div>
+    <h4>${esc(s.title)}${tag(s)}</h4><p>${esc(s.artist)}</p></div>`;
+}
+function loadHome() {
+  $("homeRows").innerHTML = ROWS.map((r, k) => `
+    <div class="sec-head"><h2>${r.title}</h2><small id="cnt${k}"></small></div>
+    <div id="row${k}">${skeletonRow(r.hero)}</div>`).join("");
+  ROWS.forEach(async (r, k) => {
+    const id = "row" + k;
+    try {
+      const songs = await (r.trending ? trending() : search(r.q, 15));
+      lists[id] = songs;
+      $("cnt" + k).textContent = songs.length + " songs";
+      $(id).innerHTML = songs.length
+        ? `<div class="${r.hero ? "hero" : "row-scroll"}">${songs.map((s, i) => r.hero ? heroCard(s, id, i) : card(s, id, i)).join("")}</div>`
+        : `<div class="empty" style="padding:20px">Kuch nahi mila</div>`;
+    } catch (e) {
+      $(id).innerHTML = `<div class="empty" style="padding:20px">⚠️ ${esc(e.message)}</div>`;
+    }
+  });
+}
+$("homeRows").addEventListener("click", e => {
+  const c = e.target.closest("[data-l]"); if (!c) return;
+  playFrom(lists[c.dataset.l], +c.dataset.i, c.closest("[id^=row]").previousElementSibling.querySelector("h2").textContent);
+});
 
-// ---- UI ----
-function fmt(s) { s = Math.floor(s || 0); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
-function esc(t) { return String(t ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
-
-function render() {
-  $("list").innerHTML = songs.map((s, i) => `
-    <div class="song ${i === current ? "playing" : ""}" data-i="${i}">
-      <img src="${esc(s.cover)}" loading="lazy" alt="" onerror="this.style.visibility='hidden'">
-      <div class="info">
-        <div class="title">${esc(s.title)}${s.type === "preview_30s" ? '<span class="tag">30s</span>' : ""}</div>
-        <div class="artist">${esc(s.artist)}</div>
-      </div>
-      <div class="dur">${s.type === "preview_30s" ? "0:30" : fmt(s.duration)}</div>
+/* ---------- List rendering ---------- */
+function listHTML(songs, id) {
+  return songs.map((s, i) => `
+    <div class="item" data-l="${id}" data-i="${i}" data-u="${esc(s.play_url)}">
+      <img src="${esc(s.cover)}" alt="" loading="lazy" onerror="this.style.opacity=0">
+      <div class="meta"><h4>${esc(s.title)}${tag(s)}</h4><p>${esc(s.artist)}</p></div>
+      <div class="side">${isPrev(s) ? "0:30" : fmt(s.duration)}</div>
     </div>`).join("");
 }
-$("list").onclick = e => { const el = e.target.closest(".song"); if (el) play(+el.dataset.i); };
+function markPlaying() {
+  const u = cur()?.play_url;
+  document.querySelectorAll(".item").forEach(el => {
+    const on = el.dataset.u === u;
+    el.classList.toggle("playing", on);
+    const side = el.querySelector(".side");
+    if (on && !side.querySelector(".eq")) side.insertAdjacentHTML("afterbegin", '<div class="eq"><i></i><i></i><i></i></div>');
+    if (!on) side.querySelector(".eq")?.remove();
+  });
+  document.body.classList.toggle("paused", audio.paused);
+}
+function bindList(el, title) {
+  el.addEventListener("click", e => {
+    const it = e.target.closest(".item"); if (!it) return;
+    playFrom(lists[it.dataset.l], +it.dataset.i, title());
+  });
+}
 
-$("chips").innerHTML = CHIPS.map((c, i) => `<button class="chip ${i === 0 ? "active" : ""}" data-i="${i}">${c.label}</button>`).join("");
-$("chips").onclick = e => {
+/* ---------- Search ---------- */
+$("moods").innerHTML = MOODS.map(m => `<button class="chip">${m}</button>`).join("");
+$("moods").onclick = e => {
   const b = e.target.closest(".chip"); if (!b) return;
   document.querySelectorAll(".chip").forEach(x => x.classList.remove("active")); b.classList.add("active");
-  const c = CHIPS[+b.dataset.i]; c.type === "trending" ? loadTrending() : search(c.q);
+  $("q").value = b.textContent; doSearch(b.textContent);
 };
-$("searchForm").onsubmit = e => { e.preventDefault(); $("q").blur(); search($("q").value.trim()); };
+let lastQ = "", sT;
+async function doSearch(q) {
+  q = q.trim(); if (!q) return; lastQ = q;
+  $("results").innerHTML = Array(6).fill('<div class="item"><div class="sk" style="width:56px;height:56px;border-radius:14px"></div><div class="meta"><div class="sk" style="height:13px;width:70%;border-radius:6px"></div><div class="sk" style="height:10px;width:45%;border-radius:6px;margin-top:8px"></div></div></div>').join("");
+  try {
+    const songs = await search(q, 30);
+    if (q !== lastQ) return;
+    lists.search = songs;
+    $("results").innerHTML = songs.length ? listHTML(songs, "search") : `<div class="empty"><div class="big">🔍</div>"${esc(q)}" ke liye kuch nahi mila.<br>Kuch aur try karo.</div>`;
+    markPlaying();
+  } catch (e) { $("results").innerHTML = `<div class="empty"><div class="big">⚠️</div>${esc(e.message)}</div>`; }
+}
+$("searchForm").onsubmit = e => { e.preventDefault(); $("q").blur(); doSearch($("q").value); };
+$("q").oninput = () => { clearTimeout(sT); sT = setTimeout(() => doSearch($("q").value), 600); };
+bindList($("results"), () => "Search: " + lastQ);
+$("results").innerHTML = `<div class="empty"><div class="big">🎧</div>Upar gaana ya artist likho,<br>ya koi mood chuno.</div>`;
 
-// ---- Player ----
-function play(i) {
-  if (i < 0 || i >= songs.length) return;
-  current = i; const s = songs[i];
+/* ---------- Liked ---------- */
+let liked = store.get("liked", []);
+const isLiked = s => s && liked.some(x => x.play_url === s.play_url || (x.id && x.id === s.id));
+function renderLiked() {
+  lists.liked = liked;
+  $("likedList").innerHTML = liked.length ? listHTML(liked, "liked")
+    : `<div class="empty"><div class="big">💜</div>Abhi koi liked gaana nahi hai.<br>Player mein ❤️ dabao, gaana yahan aa jayega.</div>`;
+  markPlaying();
+}
+bindList($("likedList"), () => "Liked Songs");
+$("fLike").onclick = () => {
+  const s = cur(); if (!s) return;
+  if (isLiked(s)) { liked = liked.filter(x => !(x.play_url === s.play_url || (x.id && x.id === s.id))); toast("Liked se hata diya"); }
+  else { liked.unshift(s); toast("💜 Liked Songs mein add ho gaya"); }
+  store.set("liked", liked); updateLike(); renderLiked();
+};
+function updateLike() { const on = isLiked(cur()); $("fLike").classList.toggle("on", on); $("fLike").innerHTML = on ? I.heartF : I.heart; }
+
+/* ---------- Navigation ---------- */
+// Android back button: modal -> full player -> Home tab -> app band
+let curPg = "home";
+function go(pg) {
+  if (pg === curPg) return;
+  if (curPg === "home") history.pushState({ tab: 1 }, "");
+  else if (pg === "home" && history.state && history.state.tab) { history.back(); return; }
+  showPage(pg);
+}
+function showPage(pg) {
+  curPg = pg;
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === "pg-" + pg));
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.pg === pg));
+  if (pg === "liked") renderLiked();
+  if (pg === "search") setTimeout(() => !lists.search && $("q").focus(), 300);
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => go(b.dataset.pg));
+$("fakeSearch").onclick = () => go("search");
+
+/* ---------- Player ---------- */
+let queue = [], idx = -1, shuffle = store.get("shuffle", false), repeat = store.get("repeat", "off");
+const cur = () => queue[idx];
+function playFrom(list, i, from) { if (!list?.length) return; queue = list.slice(); $("fFrom").textContent = from || "Aman Music"; load(i); }
+function load(i) {
+  if (i < 0 || i >= queue.length) return;
+  idx = i; const s = cur();
   audio.src = s.play_url; audio.play().catch(() => {});
-  $("player").style.display = "block";
-  $("pCover").src = s.cover || ""; $("pTitle").textContent = s.title || ""; $("pArtist").textContent = s.artist || "";
-  render();
+  [$("mCover"), $("fCover")].forEach(im => { im.style.opacity = 1; im.src = s.cover || ""; });
+  $("fBg").style.backgroundImage = s.cover ? `url("${s.cover.replace(/"/g, "%22")}")` : "none";
+  $("mTitle").textContent = $("fTitle").textContent = s.title || "Unknown";
+  $("mArtist").textContent = $("fArtist").textContent = s.artist || "";
+  $("mini").classList.add("show");
+  updateLike(); markPlaying();
+  if (isPrev(s) && !load.warned) { load.warned = true; toast("30s wale gaane sirf preview hain"); }
   if ("mediaSession" in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({ title: s.title, artist: s.artist, artwork: s.cover ? [{ src: s.cover, sizes: "512x512" }] : [] });
-    navigator.mediaSession.setActionHandler("previoustrack", () => play(current - 1));
-    navigator.mediaSession.setActionHandler("nexttrack", () => play(current + 1));
+    navigator.mediaSession.metadata = new MediaMetadata({ title: s.title, artist: s.artist, album: "Aman Music", artwork: s.cover ? [{ src: s.cover, sizes: "512x512" }] : [] });
   }
 }
-$("playBtn").onclick = () => audio.paused ? audio.play() : audio.pause();
-$("prevBtn").onclick = () => audio.currentTime > 3 ? (audio.currentTime = 0) : play(current - 1);
-$("nextBtn").onclick = () => play(current + 1);
-audio.onplay = () => $("playBtn").textContent = "⏸";
-audio.onpause = () => $("playBtn").textContent = "▶️";
-audio.onended = () => play(current + 1);
-audio.onerror = () => { if (current >= 0) { setStatus("⚠️ Ye gaana nahi chala, agla chala raha hoon."); setTimeout(() => setStatus(""), 2500); play(current + 1); } };
+function next(auto) {
+  if (!queue.length) return;
+  if (auto && repeat === "one") { audio.currentTime = 0; audio.play(); return; }
+  let n = shuffle && queue.length > 1 ? (idx + 1 + Math.floor(Math.random() * (queue.length - 1))) % queue.length : idx + 1;
+  if (n >= queue.length) { if (repeat === "all" || !auto) n = 0; else return; }
+  load(n);
+}
+function prev() { if (audio.currentTime > 3) audio.currentTime = 0; else load(idx > 0 ? idx - 1 : queue.length - 1); }
+const toggle = () => { if (!cur()) return; audio.paused ? audio.play() : audio.pause(); };
+
+$("play").onclick = $("mPlay").onclick = e => { e.stopPropagation(); toggle(); };
+$("mNext").onclick = e => { e.stopPropagation(); next(); };
+$("next").onclick = () => next(); $("prev").onclick = prev;
+function setModes() {
+  $("shuf").classList.toggle("on", shuffle);
+  $("rep").classList.toggle("on", repeat !== "off"); $("rep").classList.toggle("one", repeat === "one");
+}
+$("shuf").onclick = () => { shuffle = !shuffle; store.set("shuffle", shuffle); setModes(); toast(shuffle ? "🔀 Shuffle ON" : "Shuffle OFF"); };
+$("rep").onclick = () => { repeat = { off: "all", all: "one", one: "off" }[repeat]; store.set("repeat", repeat); setModes(); toast({ off: "Repeat OFF", all: "🔁 Repeat All", one: "🔂 Repeat One" }[repeat]); };
+setModes();
+
+function playState() {
+  const p = !audio.paused;
+  $("play").innerHTML = $("mPlay").innerHTML = p ? I.pause : I.play;
+  $("full").classList.toggle("playing-now", p);
+  document.body.classList.toggle("paused", !p);
+}
+audio.onplay = audio.onpause = playState;
+audio.onended = () => next(true);
+let errCount = 0;
+audio.onplaying = () => { errCount = 0; };
+audio.onerror = () => {
+  if (!cur()) return;
+  if (++errCount >= 3) { errCount = 0; toast("⚠️ Gaane nahi chal rahe. Internet check karo."); return; }
+  toast("⚠️ Ye gaana nahi chala, agla chala raha hoon"); setTimeout(() => next(), 800);
+};
+let seeking = false;
 audio.ontimeupdate = () => {
-  if (!audio.duration) return;
-  $("seek").value = audio.currentTime / audio.duration * 100;
+  if (!audio.duration || seeking) return;
+  const p = audio.currentTime / audio.duration * 100;
+  $("seek").value = p * 10; $("seek").style.setProperty("--p", p + "%"); $("mBar").style.width = p + "%";
   $("cur").textContent = fmt(audio.currentTime); $("tot").textContent = fmt(audio.duration);
 };
-$("seek").oninput = e => { if (audio.duration) audio.currentTime = e.target.value / 100 * audio.duration; };
+$("seek").oninput = e => { seeking = true; const p = e.target.value / 10; e.target.style.setProperty("--p", p + "%"); if (audio.duration) $("cur").textContent = fmt(p / 100 * audio.duration); };
+$("seek").onchange = e => { if (audio.duration) audio.currentTime = e.target.value / 1000 * audio.duration; seeking = false; };
 
-// ---- Start ----
-if (getKey()) loadTrending(); else { setStatus("⚙️ par tap karke API key daalo."); openSettings(); }
+if ("mediaSession" in navigator) {
+  const ms = navigator.mediaSession;
+  ms.setActionHandler("play", () => audio.play()); ms.setActionHandler("pause", () => audio.pause());
+  ms.setActionHandler("previoustrack", prev); ms.setActionHandler("nexttrack", () => next());
+}
+
+/* Full player open/close (Android back button closes it) */
+const isOpen = id => $(id).classList.contains(id === "full" ? "open" : "show");
+function openFull() { if (!cur() || isOpen("full")) return; $("full").classList.add("open"); history.pushState({ full: 1 }, ""); }
+function closeFull() { if (isOpen("full")) history.back(); }
+window.onpopstate = () => {
+  if (isOpen("modal")) $("modal").classList.remove("show");
+  else if (isOpen("full")) $("full").classList.remove("open");
+  else if (curPg !== "home") showPage("home");
+};
+$("mini").onclick = openFull; $("fClose").onclick = closeFull;
+let ty = null;
+$("full").addEventListener("touchstart", e => { ty = e.target.closest(".seek,.ctrls") ? null : e.touches[0].clientY; }, { passive: true });
+$("full").addEventListener("touchend", e => { if (ty !== null && e.changedTouches[0].clientY - ty > 120) closeFull(); ty = null; });
+
+/* ---------- Settings ---------- */
+function openSettings() {
+  if (isOpen("modal")) return;
+  $("keyArea").classList.toggle("hide", HAS_BUILT_IN);
+  $("aboutArea").classList.toggle("hide", !HAS_BUILT_IN);
+  $("modal").querySelector(".ico").innerHTML = HAS_BUILT_IN ? I.music : I.key;
+  $("keyInput").value = HAS_BUILT_IN ? "" : getKey();
+  $("modal").classList.add("show"); history.pushState({ modal: 1 }, "");
+}
+function closeSettings() { if (isOpen("modal")) history.back(); }
+$("modal").onclick = e => { if (e.target.id === "modal") closeSettings(); };
+$("btnSettings").onclick = openSettings; $("kCancel").onclick = $("aClose").onclick = closeSettings;
+$("kSave").onclick = () => {
+  const k = $("keyInput").value.trim(); if (!k) return toast("Key khaali hai");
+  store.set("apiKey", k); closeSettings(); toast("✅ Key save ho gayi"); loadHome();
+};
+
+/* ---------- Start ---------- */
+setTimeout(() => $("splash").classList.add("gone"), 1700);
+if (getKey()) loadHome();
+else { $("homeRows").innerHTML = `<div class="empty"><div class="big">🔑</div>Shuru karne ke liye ⚙️ dabao<br>aur apni API key daalo.</div>`; openSettings(); }
 </script>
 </body>
 </html>

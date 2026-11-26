@@ -21,15 +21,28 @@ jobs:
           java-version: 21
 
       - name: Prepare web files
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
         run: |
           mkdir -p www
           cp index.html www/
+          if [ -n "$API_KEY" ]; then
+            sed -i "s|__AMAN_API_KEY__|${API_KEY}|" www/index.html
+            echo "API key app mein add ho gayi"
+          else
+            echo "::warning::API_KEY secret nahi mila - app user se key maangegi"
+          fi
 
       - name: Install and add Android
         run: |
           npm install
           npx cap add android
           npx cap sync android
+
+      - name: Add Aman Music app icon
+        run: |
+          cp -r icons/res/. android/app/src/main/res/
+          echo "App icon lag gaya"
 
       - name: Build APK
         working-directory: android
